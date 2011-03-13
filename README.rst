@@ -26,4 +26,4 @@ Stuff that *isn't* included
 I know this sucks, but I will document eventually. Maybe.
 If I don't forget.
 
-.._repository: https://github.com/mrdaemon/vimconfigs
+.. _repository: https://github.com/mrdaemon/vimconfigs
