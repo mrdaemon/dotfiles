@@ -64,7 +64,7 @@ has_color () {
 		else
 			return 0
 		fi
-	elif ()
+	else
 		# So uh, no tput? Let's do it the worst way ever.
 		# I'm so sorry. Really. It's the saddest.
 		c=0
