@@ -1,0 +1,130 @@
+# vim: set filetype=sh:
+#
+#            _|              _|          _|_|  _|  _|                      
+#        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|  
+#      _|    _|  _|    _|    _|      _|_|_|_|  _|  _|  _|_|_|_|  _|_|      
+#      _|    _|  _|    _|    _|        _|      _|  _|  _|            _|_|  
+#  _|    _|_|_|    _|_|        _|_|    _|      _|  _|    _|_|_|  _|_|_|    
+#
+# 			UNIX System Configuration Files
+# 			     Underwares.org Systems
+# 
+# 	     This file is part of the master distribution @ github
+# 		      https://github.com/mrdaemon/dotfiles
+#
+#
+# ~/.bootstrap.rc: Sourced by ~/.profile, and as a last ditch effort scripts
+#                  that explicitely require it. Contains setup functions,
+#                  helpers and global variables. None of them are actually
+#                  exported -- IF THEY ARE IT IS A BUG.
+#                  Propagate via source/. not via export. More flexible this
+#                  way.
+#
+# NOTE: Should be kept mostly portable to avoid issues, as it is sourced
+#       by .profile -- split shell-specific lingo into separate files.
+#       
+#			- KEEP IT LIGHT, KEEP IT FAST -
+#
+
+## Load bootstrap-config ##
+if [ -r "$HOME/.bootstrap.rc.conf" ] ; then
+	. "$HOME/.bootstrap.rc.conf"
+else
+	echo "BOOTSTRAP: ERR: Can't find! $HOME/.bootstrap.rc.conf\!" 1>&2
+	return # Fail fast.
+fi
+
+## Validate bootstrap-config ##
+if [ -n "$UNCONFIGURED" ] ; then
+	echo "BOOTSTRAP: Please configure $HOME/.bootstrap.rc.conf first." 1>&2
+	return # Fail fast
+fi
+
+
+## Generic helper functions ##
+
+# Test if 'command' is available on the system, somewhere
+# in $PATH, or at the very least, in the hash.
+##
+has_command () {
+	return `hash $1 >/dev/null 2>&1`
+}
+
+#
+# Returns true if terminal has color,
+# false if it is not the case.
+##
+has_color () {
+	# First try to abuse tput to figure that out.
+	# Note: Only Ecma-48 / ISO/IEC-6429 compliant. If your stuff is
+	# crusty enough to not actually support that, you get no color.
+	if  ( has_command "tput" ) ; then 
+		if tput setaf 1 >/dev/null 2>&1 ; then
+			return 1
+		else
+			return 0
+		fi
+	elif ()
+		# So uh, no tput? Let's do it the worst way ever.
+		# I'm so sorry. Really. It's the saddest.
+		c=0
+		case "$TERM" in
+			xterm-*color) c=1 ;;
+			*color) c=1 ;;
+			rxvt-*) c=1 ;;
+			gnome*) c=1 ;;
+			screen-*) c=1 ;;
+			Eterm*) c=1 ;;
+			aterm*) c=1 ;;
+			interix) c=0 ;;
+			*) c=0 ;;
+		esac
+		# Return what we so sadly "guessed".
+		return $c
+	fi		
+}
+
+#
+# Returns true if terminal has 256color support
+##
+has_256colors () {
+	# Sad, sad way until I figure a specific ncurses, terminfo
+	# or whatever, **portable** way of doing this.
+	tfsc=0
+	case "$TERM" in
+		*256color*) tfsc=1 ;;
+		*) tfsc=0 ;;
+	esac
+	
+	return ${tfsc}
+}
+
+## Main ##
+
+# ensure $HOSTNAME is defined somehow.
+# It is a bash variable, among other things, but some systems
+# may actually provide it.
+if [ -z "$HOSTNAME" ] ; then
+	if ( has_command "hostname" ) ; then
+		HOSTNAME=`hostname`
+	else
+		echo "BOOTSTRAP: Warning: unable to obtain hostname." 2>&1
+		HOSTNAME="unset"
+	fi
+fi
+
+# Load bash-specific helper functions
+# Loaded last because it may override generic helpers.
+if [ -n "$BASH_VERSION" ] ; then
+	if [ -r "$HOME/.bootstrap.bash" ] ; then
+		. "$HOME/.bootstrap.bash"
+	else
+		echo "BOOTSTRAP: Failed to load bash helpers!" 2>&1
+		echo "BOOTSTRAP: Validate $HOME/.bootstrap.bash" 2>&1
+		return # Abort and don't bootstrap.
+	fi
+fi
+
+# MUST BE LAST - script returns on error
+BOOTSTRAPPED=1
+
