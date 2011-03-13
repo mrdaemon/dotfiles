@@ -19,11 +19,6 @@
 #            and go back to feeling sane and content.
 #
 
-## Silently Source bootstrap script if somehow ran without .profile ##
-f="$HOME/.bootstrap.rc"
-[[ "$BOOTSTRAPPED"]] || [[ -r "$f" ]] && { source "$f" &>/dev/null ; }
-unset -v f
-
 ###########################################
 # Interactive Sessions Parameters         #
 # - loaded only for interactive sessions. #
@@ -128,6 +123,20 @@ export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls'
 #export PROMPT_COMMAND="history -a"
 
 ##
+# Bash Completion options
+##########################
+
+# Allow completion of files checked out over passwordless ssh for CVS
+export COMP_CVS_REMOTE=1
+
+# When completing './configure' scripts, do not strip description from
+# options, ex: "./configure --with-option=description"
+export COMP_CONFIGURE_HINTS=1
+
+# When completing tar files, don't flatten the paths.
+export COMP_TAR_INTERNAL_PATHS=1
+
+##
 # Global aliases
 #################
 
@@ -138,5 +147,20 @@ alias mv='mv -i'
 
 ## Load bash-specific aliases if any
 [[ -f ~/.bash_aliases ]] && source ~/.bash_aliases
+
+##
+# User functions
+#################
+
+# Set xterm-ish window title
+xtitle () { echo -ne "\e]2;$@\a\e]1;$@\a"; }
+
+##
+# Machine and system dependent Bashisms
+########################################
+
+
+
+# Don't litter!
 
 
