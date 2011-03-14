@@ -1,3 +1,4 @@
+# vim: set filetype=sh:
 #
 #            _|              _|          _|_|  _|  _|                      
 #        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|  
@@ -23,40 +24,40 @@
 #                          login shells. Sadly not executed by non-login ones.
 #
 # ~/.bashrc             -  Bash specific configuration, sourced by profile and 
-#                          non-login shells
+#                          non-login shells.
 #
-# ~/.bootstrap.rc       -  Contains init-related hacks, hooks and helpers.
-# ~/.bootstrap.rc.conf  -  Global bootstrap settings (local to each system) 
-#                          You **MUST** edit this to match your system.
-#                          Do note that you can hardcode values there.
+# ~/.bashrc.local       -  Bash specific configuration for local machine.
+#                          Sourced by ~/.bashrc in strategic spots.
+#
+# $DOTFILES/            -  shell/rc.d optional/specific configuration files
+#  --> <platform>.profile     - Platform specific login shell configuration
+#  --> <hostname>.profile     - Machine specific login shell configuration
 #
 # $DOTFILES/bashisms -  Bash specific scripts and configurations.
-#  --> <platform>.bash        - Configuration specific to <platform>
+#  --> <platform>.bashrc      - Configuration specific to <platform>
 #  --> <hostname>-ps1.bash    - Shell prompt specific to <hostname>
-#  --> <hostname>-local.bash  - Configuration specific to <hostname>
-
-###
-# Self-checks and system bootstrap
-###################################
-
-# Execute bootstrap script for hooks and helpers
-if [ -r "$HOME/.bootstrap.rc" ] ; then
-	. "$HOME/.bootstrap.rc"
-else
-	echo "PROFILE: WARNING - $HOME/.bootstrap.rc is missing." 1>&2
-	echo "PROFILE: Nifty hacks and automation are disabled." 1>&2
-	echo "PROFILE: Verify permissions, symlinks and overall sanity." 1>&2
-fi
+#
 
 ###
 # Global environment Variables
 ###############################
 
-# export path to dotfiles repository location.
-# Set by bootstrap script above, which is sourced.
-if [ -n "$DOTFILES" ] ; then
-       export DOTFILES
-fi 
+DOTFILES="$HOME/.shell/rc.d" # Where to find 'dotfiles/shell/rc.d/' directory
+export DOTFILES
+
+# Use less as pager, if it is available
+if [ -n "`which less`" ] ; then
+	PAGER=less
+else
+	PAGER=more
+fi
+
+# Set global editor to vim or vi
+if [ -n "`which vim`" ] ; then
+	EDITOR=vim
+else
+	EDITOR=vi
+fi
 
 ###
 # Generic PATH setup
@@ -70,9 +71,16 @@ fi
 # I sometimes keep a $HOME/local as to not litter the root,
 # especially if a package is more than a single binary.
 # I find installing directly in $HOME distasteful.
-if [ -d "$HOME/local/bin" ] ; then
+if [ -d "$HOME/local" ] ; then
 	PATH="$HOME/local/bin:$PATH"
+	MANPATH="$HOME/local/share/man:$MANPATH"
+	INFOPATH="$HOME/local/share/info:$INFOPATH"
 fi
+
+# VI(M) EVERYWHERE, ALWAYS, ALL THE TIME
+VISUAL=$EDITOR
+SVN_EDITOR=$EDITOR
+GIT_EDITOR=$EDITOR
 
 ###
 # Specific hooks and shell configurations
@@ -85,15 +93,15 @@ if [ -n "$BASH_VERSION" ]; then
 	fi
 fi
 
-# Attempt to Cleanup boostrap crud.
-# TODO: Script could be autogen'ed, actually.
-c="$DOTFILES/shellrc/.bootstrap-cleanup.rc"
-if [ -r "$c" ] ; then
-	. "$c"
-fi
-unset -v c
+# Don't litter!
+unset DOTFILES
 
 # Export variables
 export PATH
-
-
+export MANPATH
+export INFOPATH
+export EDITOR
+export PAGER
+export VISUAL
+export SVN_EDITOR
+export GIT_EDITOR

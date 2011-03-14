@@ -1,3 +1,4 @@
+# vim: set filetype=sh:
 #
 #            _|              _|          _|_|  _|  _|                      
 #        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|  
@@ -15,8 +16,7 @@
 # ~/.bashrc: Executed by bash(1) at startup. Login or non login, unlike most
 #            traditional UNIX systems, I don't give a crap and execute it from
 #            ~/.profile regardless, because I'm cool like that.
-#            Also, this is bash(1) specific, I can do away with portability
-#            and go back to feeling sane and content.
+#            Also, this is bash(1) specific, I can do away with portability.
 #
 
 ###########################################
@@ -62,13 +62,18 @@ shopt -s histreedit
 ## do not directory execute. That's much saner.
 shopt -s histverify
 
+## Enable programmable Completion
+## Pretty sure it's on by default and that bash_completion enables it, 
+## but it never hurts to make sure.
+shopt -s progcomp
+
 ## Enable completion of hostnames.
 ## On by default since what, 2.0? but better safe than sorry.
 shopt -s hostcomplete
 
 #### ---- Bash 4+ specific options ---- ####
 
-if [[ $BASH_VERSINFO[0] -ge 4 ]] ; then
+if [[ ${BASH_VERSINFO[0]} -ge 4 ]] ; then
 	## Automatically cd into directory names by calling them out
 	## on the command prompt, without the need for explicit 'cd'
 	#shopt -s autocd
@@ -122,6 +127,9 @@ export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls'
 # -- or --
 #export PROMPT_COMMAND="history -a"
 
+## Use giant history file size
+export HISTSIZE=10000
+
 ##
 # Bash Completion options
 ##########################
@@ -136,6 +144,20 @@ export COMP_CONFIGURE_HINTS=1
 # When completing tar files, don't flatten the paths.
 export COMP_TAR_INTERNAL_PATHS=1
 
+## readline settings - overrides .inputrc ##
+
+# Disable completion bell
+bind "set bell-style none"
+
+# Immediatly show completions instead of having to double-tab
+bind "set show-all-if-ambiguous On"
+
+# Load advanced bash completion if available at default location, and if
+# it isn't already loaded from a system-wide script.
+# Platforms where it's elsewhere can load it in their own location
+[[ -r /etc/bash_completion && -z "$BASH_COMPLETION" ]] && \
+	source /etc/bash_completion
+
 ##
 # Global aliases
 #################
@@ -149,11 +171,29 @@ alias mv='mv -i'
 [[ -f ~/.bash_aliases ]] && source ~/.bash_aliases
 
 ##
+# Hacks, gizmos and helpers
+############################
+
+## Enable lessopen(1) if available as a less filter.
+## Enhances less' handling of binary files and compressed files.
+[[ -x "$(which lesspipe)" ]] && eval "$(lesspipe)"
+
+## Enable color support for ls, if available.
+if [[ -x "$(which dircolors)" ]] ; then
+	# Prefer user defined colors
+	if [[ -f ~/.dir_colors ]] ; then
+		eval "$(dircolors -b ~/.dir_colors)"
+	else
+		eval "$(dircolors -b)"
+	fi
+fi
+
+##
 # User functions
 #################
 
 # Set xterm-ish window title
-xtitle () { echo -ne "\e]2;$@\a\e]1;$@\a"; }
+set_xtitle () { echo -ne "\e]2;$@\a\e]1;$@\a"; }
 
 ##
 # Machine and system dependent Bashisms
