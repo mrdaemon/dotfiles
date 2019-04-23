@@ -255,6 +255,15 @@ else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 
+# Set the GUI terminal window title to PS1 info, if xterm compatible
+case "$TERM" in
+	xterm*|rxvt*)
+    	PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    	;;
+	*)
+    	;;
+esac
+
 # Add neat dbus notification alias to send the status of a pipeline
 # Helpful to receive a desktop notification when something completes.
 # e.g. /usr/bin/takes-forever --earthages=3 ; alertme
