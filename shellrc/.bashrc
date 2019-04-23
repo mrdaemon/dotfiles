@@ -13,9 +13,7 @@
 # 		      https://github.com/mrdaemon/dotfiles
 #
 #
-# ~/.bashrc: Executed by bash(1) at startup. Login or non login, unlike most
-#            traditional UNIX systems, I don't give a crap and execute it from
-#            ~/.profile regardless, because I'm cool like that.
+# ~/.bashrc: Executed by bash(1) at startup. Also sourced from .profile
 #            Also, this is bash(1) specific, I can do away with portability.
 #
 
@@ -25,8 +23,7 @@
 ###########################################
 
 ## No point in running anything past here if session
-## isn't interactive in the least. Also, fuck checking for $PS1,
-## really. Not sure why some seem to think it's a brilliant idea.
+## isn't interactive in the least. Also, fuck checking for $PS1.
 [[ $- != *i* ]] && return
 
 ###
