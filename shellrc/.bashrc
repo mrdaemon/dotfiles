@@ -111,35 +111,36 @@ set -o vi
 
 ## Don't log duplicate lines and keep previous settings
 ## that may have been set by external applications
-export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
 
 ## Ignore bullshit entries --
 ## job control, exit, ls, and most importantly, anything preceded by
 ## a space. Useful to explicitely run something without logging it to history.
-export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls'
+HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls'
 
 ## Write line to disk whenever displaying prompt.
 ## Probably expensive, will definitely cause grief on IO-locked servers.
-#export PROMPT_COMMAND="$PROMPT_COMMAND${PROMPT_COMMAND+\;}history -a"
+#PROMPT_COMMAND="$PROMPT_COMMAND${PROMPT_COMMAND+\;}history -a"
 # -- or --
-#export PROMPT_COMMAND="history -a"
+#PROMPT_COMMAND="history -a"
 
-## Use giant history file size
-export HISTSIZE=10000
+## Default history length
+HISTSIZE=1000
+HISTFILESIZE=2000
 
 ##
 # Bash Completion options
 ##########################
 
 # Allow completion of files checked out over passwordless ssh for CVS
-export COMP_CVS_REMOTE=1
+COMP_CVS_REMOTE=1
 
 # When completing './configure' scripts, do not strip description from
 # options, ex: "./configure --with-option=description"
-export COMP_CONFIGURE_HINTS=1
+COMP_CONFIGURE_HINTS=1
 
 # When completing tar files, don't flatten the paths.
-export COMP_TAR_INTERNAL_PATHS=1
+COMP_TAR_INTERNAL_PATHS=1
 
 ## readline settings - overrides .inputrc
 
