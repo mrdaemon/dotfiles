@@ -34,7 +34,7 @@
 shopt -s histappend
 
 ## Ignore small typos in directory names during 'cd'
-shopt -s cdspell
+#shopt -s cdspell
 
 ## Check window size after each command, adjusting LINES and COLUMNS
 shopt -s checkwinsize
