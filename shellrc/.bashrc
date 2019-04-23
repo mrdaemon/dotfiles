@@ -1,14 +1,14 @@
 # vim: set filetype=sh:
 #
-#            _|              _|          _|_|  _|  _|                      
-#        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|  
-#      _|    _|  _|    _|    _|      _|_|_|_|  _|  _|  _|_|_|_|  _|_|      
-#      _|    _|  _|    _|    _|        _|      _|  _|  _|            _|_|  
-#  _|    _|_|_|    _|_|        _|_|    _|      _|  _|    _|_|_|  _|_|_|    
+#            _|              _|          _|_|  _|  _|
+#        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|
+#      _|    _|  _|    _|    _|      _|_|_|_|  _|  _|  _|_|_|_|  _|_|
+#      _|    _|  _|    _|    _|        _|      _|  _|  _|            _|_|
+#  _|    _|_|_|    _|_|        _|_|    _|      _|  _|    _|_|_|  _|_|_|
 #
 # 			UNIX System Configuration Files
 # 			     Underwares.org Systems
-# 
+#
 # 	     This file is part of the master distribution @ github
 # 		      https://github.com/mrdaemon/dotfiles
 #
@@ -60,7 +60,7 @@ shopt -s histreedit
 shopt -s histverify
 
 ## Enable programmable Completion
-## Pretty sure it's on by default and that bash_completion enables it, 
+## Pretty sure it's on by default and that bash_completion enables it,
 ## but it never hurts to make sure.
 shopt -s progcomp
 
@@ -141,7 +141,7 @@ export COMP_CONFIGURE_HINTS=1
 # When completing tar files, don't flatten the paths.
 export COMP_TAR_INTERNAL_PATHS=1
 
-## readline settings - overrides .inputrc ##
+## readline settings - overrides .inputrc
 
 # Disable completion bell
 bind "set bell-style none"
@@ -200,4 +200,4 @@ set_xtitle () { echo -ne "\e]2;$@\a\e]1;$@\a"; }
 
 # Don't litter!
 
-
+####
