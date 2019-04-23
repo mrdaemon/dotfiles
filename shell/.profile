@@ -1,14 +1,14 @@
 # vim: set filetype=sh:
 #
-#            _|              _|          _|_|  _|  _|                      
-#        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|  
-#      _|    _|  _|    _|    _|      _|_|_|_|  _|  _|  _|_|_|_|  _|_|      
-#      _|    _|  _|    _|    _|        _|      _|  _|  _|            _|_|  
-#  _|    _|_|_|    _|_|        _|_|    _|      _|  _|    _|_|_|  _|_|_|    
+#            _|              _|          _|_|  _|  _|
+#        _|_|_|    _|_|    _|_|_|_|    _|          _|    _|_|      _|_|_|
+#      _|    _|  _|    _|    _|      _|_|_|_|  _|  _|  _|_|_|_|  _|_|
+#      _|    _|  _|    _|    _|        _|      _|  _|  _|            _|_|
+#  _|    _|_|_|    _|_|        _|_|    _|      _|  _|    _|_|_|  _|_|_|
 #
 # 			UNIX System Configuration Files
 # 			     Underwares.org Systems
-# 
+#
 # 	     This file is part of the master distribution @ github
 # 		      https://github.com/mrdaemon/dotfiles
 #
@@ -20,30 +20,21 @@
 # ----------------------------------------------------------------------------
 # File layout overview:
 #
-# ~/.profile            -  Master file. Executed by interpreters for 
+# ~/.profile            -  Master file. Executed by interpreters for
 #                          login shells. Sadly not executed by non-login ones.
 #
-# ~/.bashrc             -  Bash specific configuration, sourced by profile and 
+# ~/.profile.local      -  Machine specific local profile stuff (paths etc).
+#                          Sourced by .profile if found.
+#
+# ~/.bashrc             -  Bash specific configuration, sourced by profile and
 #                          non-login shells.
 #
 # ~/.bashrc.local       -  Bash specific configuration for local machine.
 #                          Sourced by ~/.bashrc in strategic spots.
-#
-# $DOTFILES/            -  shell/rc.d optional/specific configuration files
-#  --> <platform>.profile     - Platform specific login shell configuration
-#  --> <hostname>.profile     - Machine specific login shell configuration
-#
-# $DOTFILES/bashisms -  Bash specific scripts and configurations.
-#  --> <platform>.bashrc      - Configuration specific to <platform>
-#  --> <hostname>-ps1.bash    - Shell prompt specific to <hostname>
-#
 
 ###
 # Global environment Variables
 ###############################
-
-DOTFILES="$HOME/.shell/rc.d" # Where to find 'dotfiles/shell/rc.d/' directory
-export DOTFILES
 
 # Use less as pager, if it is available
 if [ -n "`which less`" ] ; then
@@ -68,13 +59,15 @@ if [ -d "$HOME/bin" ] ; then
 	PATH="$HOME/bin:$PATH"
 fi
 
-# I sometimes keep a $HOME/local as to not litter the root,
-# especially if a package is more than a single binary.
-# I find installing directly in $HOME distasteful.
-if [ -d "$HOME/local" ] ; then
-	PATH="$HOME/local/bin:$PATH"
-	MANPATH="$HOME/local/share/man:$MANPATH"
-	INFOPATH="$HOME/local/share/info:$INFOPATH"
+# Add local bin and man page paths
+if [ -d "$HOME/.local" ] ; then
+	PATH="$HOME/.local/bin:$PATH"
+	if [ -z "$MANPATH" ] ; then
+		MANPATH="$HOME/.local/share/man:`manpath -q`"
+	else
+		MANPATH="$HOME/.local/share/man:$MANPATH"
+	fi
+	INFOPATH="$HOME/.local/share/info:$INFOPATH"
 fi
 
 # VI(M) EVERYWHERE, ALWAYS, ALL THE TIME
@@ -93,9 +86,6 @@ if [ -n "$BASH_VERSION" ]; then
 	fi
 fi
 
-# Don't litter!
-unset DOTFILES
-
 # Export variables
 export PATH
 export MANPATH
@@ -105,3 +95,10 @@ export PAGER
 export VISUAL
 export SVN_EDITOR
 export GIT_EDITOR
+
+# Source local profile if available
+if [ -f "$HOME/.profile.local" ] ; then
+	. "$HOME/.profile.local"
+fi
+
+##
