@@ -78,7 +78,7 @@ if [[ ${BASH_VERSINFO[0]} -ge 4 ]] ; then
 	## List stopped/running jobs on 'exit' attempt, defers exit
 	## until a second 'exit' is attempted without intervening command.
 	shopt -s checkjobs
-	
+
 	## Enable recursive globbing with **/
 	## Please picture thin lipped zsh users everywhere.
 	shopt -s globstar
@@ -142,6 +142,19 @@ COMP_CONFIGURE_HINTS=1
 # When completing tar files, don't flatten the paths.
 COMP_TAR_INTERNAL_PATHS=1
 
+# Load advanced bash completion if available at default location, and if
+# it isn't already loaded from a system-wide script.
+# Platforms where it's elsewhere can load it in their own location
+if ! shopt -oq posix ; then
+	if [[ -z $BASH_COMPLETION ]] ; then
+		if [[ -f /usr/share/bash-completion/bash_completion ]] ; then
+			source /usr/share/bash-completion/bash_completion
+		elif [[ -f /etc/bash_completion ]] && \
+			source /etc/bash_completion
+		fi
+	fi
+fi
+
 ## readline settings - overrides .inputrc
 
 # Disable completion bell
@@ -150,11 +163,102 @@ bind "set bell-style none"
 # Immediatly show completions instead of having to double-tab
 bind "set show-all-if-ambiguous On"
 
-# Load advanced bash completion if available at default location, and if
-# it isn't already loaded from a system-wide script.
-# Platforms where it's elsewhere can load it in their own location
-[[ -r /etc/bash_completion && -z "$BASH_COMPLETION" ]] && \
-	source /etc/bash_completion
+##
+# Hacks, gizmos and helpers
+############################
+
+## Debian Specific:
+## set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+## Turn on color specific stuff if available
+case "$TERM" in
+	xterm-color|*-256color) enable_color=yes;;
+esac
+
+# In case of weird TERM value, test for ECMA-48 compliance with tput
+# Enable color if that works out.
+if [[ -z "$enable_color" ]] ; then
+	if [[ -x /usr/bin/tput ]] && tput setaf 1 >& /dev/null ; then
+		enable_color=yes
+	else
+		enable_color=
+	fi
+fi
+
+## Enable lessopen(1) if available as a less filter.
+## Enhances less' handling of binary files and compressed files.
+[[ -x "$(which lesspipe)" ]] && eval "$(SHELL=/bin/sh lesspipe)"
+
+## Enable color support for ls and friends, if available.
+if [[ -x "$(which dircolors)" ]] ; then
+	# Prefer user defined colors
+	if [[ -f ~/.dir_colors ]] ; then
+		eval "$(dircolors -b ~/.dir_colors)"
+	else
+		eval "$(dircolors -b)"
+	fi
+
+	# Set default colored aliases
+	alias ls='ls --color=auto'
+	alias grep='grep --color=auto'
+	alias fgrep='fgrep --color=auto'
+	alias egrep='egrep --color=auto'
+fi
+
+
+## Setup Shell Prompt
+## Any Dynamic stuff that expects to be part of PS1 should be hacked in here
+
+if [[ $enable_color = yes ]] ; then
+	# Build up the PS1 prefix (everything before the dynamic stuff)
+    PS1PREFIX='${debian_chroot:+($debian_chroot)}' # Debian Chroot prefix
+
+    PS1PREFIX="$PS1PREFIX"'\[\033[01;32m\]' # Switch to Green
+    PS1PREFIX="$PS1PREFIX"'\u@\h'           # user@host
+    PS1PREFIX="$PS1PREFIX"'\[\033[00m\]'    # Switch to white
+    PS1PREFIX="$PS1PREFIX"':'               # Colon separator
+    PS1PREFIX="$PS1PREFIX"'\[\033[01;34m\]' # Switch to Blue
+    PS1PREFIX="$PS1PREFIX"'\w'              # Current Working Directory
+    PS1PREFIX="$PS1PREFIX"'\[\033[00m\]'    # Switch back to white
+
+	# Build up the PS1 suffix (everything after the dynamic stuff)
+    PS1SUFFIX='\$ '
+
+    # Set PS1 to initial value
+    PS1="$PS1PREFIX""$PS1SUFFIX"
+
+    # Setup git prompt if git is available
+    if which git > /dev/null 2>&1 ; then
+        if [[ -f ~/.git-prompt.sh ]] ; then
+            . ~/.git-prompt.sh
+
+            # Prompt Settings
+            GIT_PS1_SHOWDIRTYSTATE=1
+            GIT_PS1_SHOWUPSTREAM="auto"
+            GIT_PS1_SHOWCOLORHINTS=1
+
+            # __git_ps1 actually *modifies* PS1 outright.
+            # The prefix and suffix variables need to stick around
+            PROMPT_COMMAND='__git_ps1 "$PS1PREFIX" "$PS1SUFFIX"'
+        fi
+    else
+        # Git prompt is not available, PS1 will remain intact.
+        # We can clean up the garbage we'd otherwise leave behind.
+        unset PS1PREFIX PS1SUFFIX
+    fi
+else
+    # Don't actually mess with the prompt in a non-color env
+    # This usually hints at console logins or recovery.
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+# Add neat dbus notification alias to send the status of a pipeline
+# Helpful to receive a desktop notification when something completes.
+# e.g. /usr/bin/takes-forever --earthages=3 ; alertme
+alias alertme='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alertme$//'\'')"'
 
 ##
 # Global aliases
@@ -165,40 +269,18 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 
-## Load bash-specific aliases if any
+## Load local bash-specific aliases if any
 [[ -f ~/.bash_aliases ]] && source ~/.bash_aliases
-
-##
-# Hacks, gizmos and helpers
-############################
-
-## Enable lessopen(1) if available as a less filter.
-## Enhances less' handling of binary files and compressed files.
-[[ -x "$(which lesspipe)" ]] && eval "$(lesspipe)"
-
-## Enable color support for ls, if available.
-if [[ -x "$(which dircolors)" ]] ; then
-	# Prefer user defined colors
-	if [[ -f ~/.dir_colors ]] ; then
-		eval "$(dircolors -b ~/.dir_colors)"
-	else
-		eval "$(dircolors -b)"
-	fi
-fi
-
-##
-# User functions
-#################
-
-# Set xterm-ish window title
-set_xtitle () { echo -ne "\e]2;$@\a\e]1;$@\a"; }
 
 ##
 # Machine and system dependent Bashisms
 ########################################
+[[ -f ~/.bashrc.local ]] &&  source ~/.bashrc.local
 
-
+## Run terminal Welcome Mat if available
+[[ -x ~/.rc.logo ]] && ~/.rc.logo
 
 # Don't litter!
+unset enable_color
 
 ####
