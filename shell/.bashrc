@@ -193,7 +193,7 @@ fi
 [[ -x "$(which lesspipe)" ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
 ## Enable color support for ls and friends, if available.
-if [[ -x "$(which dircolors)" ]] ; then
+if [[ -x "$(which dircolors)" ]] && [[ $enable_color == "yes" ]] ; then
 	# Prefer user defined colors
 	if [[ -f ~/.dir_colors ]] ; then
 		eval "$(dircolors -b ~/.dir_colors)"
