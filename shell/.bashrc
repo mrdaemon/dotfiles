@@ -214,45 +214,45 @@ fi
 
 if [[ $enable_color = yes ]] ; then
 	# Build up the PS1 prefix (everything before the dynamic stuff)
-    PS1PREFIX='${debian_chroot:+($debian_chroot)}' # Debian Chroot prefix
+	PS1PREFIX='${debian_chroot:+($debian_chroot)}' # Debian Chroot prefix
 
-    PS1PREFIX="$PS1PREFIX"'\[\033[01;32m\]' # Switch to Green
-    PS1PREFIX="$PS1PREFIX"'\u@\h'           # user@host
-    PS1PREFIX="$PS1PREFIX"'\[\033[00m\]'    # Switch to white
-    PS1PREFIX="$PS1PREFIX"':'               # Colon separator
-    PS1PREFIX="$PS1PREFIX"'\[\033[01;34m\]' # Switch to Blue
-    PS1PREFIX="$PS1PREFIX"'\w'              # Current Working Directory
-    PS1PREFIX="$PS1PREFIX"'\[\033[00m\]'    # Switch back to white
+	PS1PREFIX="$PS1PREFIX"'\[\033[01;32m\]' # Switch to Green
+	PS1PREFIX="$PS1PREFIX"'\u@\h'           # user@host
+	PS1PREFIX="$PS1PREFIX"'\[\033[00m\]'    # Switch to white
+	PS1PREFIX="$PS1PREFIX"':'               # Colon separator
+	PS1PREFIX="$PS1PREFIX"'\[\033[01;34m\]' # Switch to Blue
+	PS1PREFIX="$PS1PREFIX"'\w'              # Current Working Directory
+	PS1PREFIX="$PS1PREFIX"'\[\033[00m\]'    # Switch back to white
 
 	# Build up the PS1 suffix (everything after the dynamic stuff)
-    PS1SUFFIX='\$ '
+	PS1SUFFIX='\$ '
 
-    # Set PS1 to initial value
-    PS1="$PS1PREFIX""$PS1SUFFIX"
+	# Set PS1 to initial value
+	PS1="$PS1PREFIX""$PS1SUFFIX"
 
-    # Setup git prompt if git is available
-    if which git > /dev/null 2>&1 ; then
-        if [[ -f ~/.git-prompt.sh ]] ; then
-            . ~/.git-prompt.sh
+	# Setup git prompt if git is available
+	if which git > /dev/null 2>&1 ; then
+		if [[ -f ~/.git-prompt.sh ]] ; then
+			. ~/.git-prompt.sh
 
-            # Prompt Settings
-            GIT_PS1_SHOWDIRTYSTATE=1
-            GIT_PS1_SHOWUPSTREAM="auto"
-            GIT_PS1_SHOWCOLORHINTS=1
+			# Prompt Settings
+			GIT_PS1_SHOWDIRTYSTATE=1
+			GIT_PS1_SHOWUPSTREAM="auto"
+			GIT_PS1_SHOWCOLORHINTS=1
 
-            # __git_ps1 actually *modifies* PS1 outright.
-            # The prefix and suffix variables need to stick around
-            PROMPT_COMMAND='__git_ps1 "$PS1PREFIX" "$PS1SUFFIX"'
-        fi
-    else
-        # Git prompt is not available, PS1 will remain intact.
-        # We can clean up the garbage we'd otherwise leave behind.
-        unset PS1PREFIX PS1SUFFIX
-    fi
+			# __git_ps1 actually *modifies* PS1 outright.
+			# The prefix and suffix variables need to stick around
+			PROMPT_COMMAND='__git_ps1 "$PS1PREFIX" "$PS1SUFFIX"'
+		fi
+	else
+		# Git prompt is not available, PS1 will remain intact.
+		# We can clean up the garbage we'd otherwise leave behind.
+		unset PS1PREFIX PS1SUFFIX
+	fi
 else
-    # Don't actually mess with the prompt in a non-color env
-    # This usually hints at console logins or recovery.
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+	# Don't actually mess with the prompt in a non-color env
+	# This usually hints at console logins or recovery.
+	PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 
 # Set the GUI terminal window title to PS1 info, if xterm compatible
