@@ -242,7 +242,7 @@ if [[ $enable_color = yes ]] ; then
 
 			# __git_ps1 actually *modifies* PS1 outright.
 			# The prefix and suffix variables need to stick around
-			PROMPT_COMMAND='__git_ps1 "$PS1PREFIX" "$PS1SUFFIX"'
+			PROMPT_COMMAND='__git_ps1 "$PS1PREFIX" "$PS1SUFFIX" "[%s]"'
 		fi
 	else
 		# Git prompt is not available, PS1 will remain intact.
